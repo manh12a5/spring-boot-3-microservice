@@ -2,6 +2,7 @@ package com.example.departmentservice.config;
 
 import com.example.departmentservice.client.EmployeeClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.client.loadbalancer.reactive.LoadBalancedExchangeFilterFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,16 +13,18 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @Configuration
 public class WebConfig {
 
-    private final static String EMPLOYEESERVICEURL = "http://employee-service";
+    private final static String EMPLOYEESERVICEURL = "http://employee-service"; //http://localhost.8082
 
-    @Autowired
-    private LoadBalancedExchangeFilterFunction filterFunction;
+    @Bean
+    @LoadBalanced
+    public WebClient.Builder loadBalancedWebClientBuilder() {
+        return WebClient.builder();
+    }
 
     @Bean
     public WebClient employeeWebClient() {
-        return WebClient.builder()
+        return loadBalancedWebClientBuilder()
                 .baseUrl(EMPLOYEESERVICEURL)
-                .filter(filterFunction)
                 .build();
     }
 
